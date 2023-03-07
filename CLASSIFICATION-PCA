@@ -1,0 +1,159 @@
+# Install pre-requisite packages#
+install.packages("stats")
+install.packages("dplyr")
+install.packages("ggplot2")
+
+#Load required libraries#
+library(stats)
+library(dplyr)
+library(ggfortify)
+
+#Data (must be unlabelled)#
+
+library("readxl")
+read_excel("C:\\Users\\user\\Desktop\\DATA ANALYSIS\\readxl2.xlsx")
+data<-read_excel("C:\\Users\\user\\Desktop\\DATA ANALYSIS\\readxl2.xlsx")
+View(data)
+mydata=select(data,c(1,2,5,6,7,8,9,10,11,12,13,14,15,16,17))
+mydata$Player_ID<-1:nrow(mydata)
+View(mydata)
+
+
+newdata<-subset(mydata,
+select=c(3,4,5,6,7,8,9,10,11,12,13))
+View(newdata)
+
+#Main aim of PCA is to transform or combine linearly correlated variables into a 
+new set of variables called Principle Components#
+
+#We must check if the variabes of the dataset are highly correlated with one another.#
+#Whether they are linearly dependent or not#
+#Correlation matrix: If average correlation is>0.3 or <0.3 there is evidence that the
+variables are highly correlated amongst one another and are hence eligible for Principle 
+Component Analysis (PCA)#
+
+#Check PCA Eligiblity#
+#Build Correlation Matrix#
+
+correl<-cor(newdata)
+View(correl)
+
+#Average Correlation amongst variables of dataset#
+mean(cor(newdata))
+
+
+#Principle Component Analysis (PCA)#
+
+PCA<-princomp(newdata)
+
+#Evaluation of PCA analysis#
+
+#Two ways to evaluate PCA:#
+#1. Check wether PCs capture the essence of the original varables#
+#2. Check wether PCs are independent or not.#
+
+#PC Loadings#
+
+loadings<-PCA$loadings
+PC1_weights<-loadings[,1]
+PC2_weights<-loadings[,2]
+
+View(PC1_weights)
+View(PC2_weights)
+
+#Principle Components#
+Correlation Matrix on Principle Components to see wether they are independent#
+
+PC=PCA$scores
+CORREL=cor(PC)
+View(CORREL)
+---------------------------------------------------------------------------------
+
+k<-3
+
+set.seed(123)
+kmeans_model <- kmeans(PC, centers = k)
+
+
+
+mydata$cluster <- kmeans_model$cluster
+
+ggplot(mydata, aes(x=PC[,1], y=PC[,2], color=factor(cluster))) +
+geom_point() +
+scale_color_discrete(name="Cluster") +
+ggtitle("K-Means Clustering")
+
+ggplot(mydata, aes(x=PC[,1], y=PC[,2], color=factor(cluster))) +
+geom_point() +
+geom_text(aes(label=Player),hjust=0, vjust=0) +
+scale_color_discrete(name="Cluster") +
+ggtitle("K-Means Clustering")
+
+
+wcss <- sapply(1:10, function(k) {
+kmeans(PC, k, nstart = 50)$tot.withinss
+})
+
+
+plot(1:10, wcss,
+type = "b", pch = 19, frame = FALSE,
+xlab = "Number of Clusters",
+ylab = "Within Sum of Squares")
+
+
+
+-----------------------------------------------------------------------------
+#Extracting info of Clusters#
+
+cluster1<-subset(mydata,cluster==1)
+cluster2<-subset(mydata,cluster==2)
+cluster3<-subset(mydata,cluster==3)
+
+player_name <- "Jakob Poeltl"
+player_cluster <- subset(mydata, Player == player_name)$cluster
+player_cluster 
+
+-----------------------------------------------------------------------------
+
+
+-----------------------------------------------------------------------------
+#plot
+autoplot(PCA)
+
+3
+#k_means#
+
+library(NbClust)
+ res.nb<-NbClust(Normal,
+ min.nc=2, max.nc=10,
+ method="complete")
+ results=kmeans(newdata,6)
+
+newdata$Player_ID <- 1:nrow(newdata)
+View(newdata)
+
+
+install.packages("factoextra")
+fviz_cluster(results, data = newdata)
+
+PC1 <- PCA$scores[,1]
+PC2 <- PCA$scores[,2]
+
+newdata$Player <- c(<insert your player names here>)
+
+ggplot(newdata, aes(x = PC1, y = PC2, color = factor(results$cluster))) +
+geom_point() +
+geom_text(aes(label = newdata$Player), hjust = 0, vjust = 0, nudge_x = 0.2, nudge_y = 0.2)
+
+merged_data <- merge(mydata, newdata, by = "Player_ID")
+View(merged_data)
+
+#Extracting info of Clusters#
+
+cluster1<-subset(mydata,cluster==1)
+cluster2<-subset(mydata,cluster==2)
+cluster3<-subset(mydata,cluster==3)
+
+player_name <- "Jakob Poeltl"
+player_cluster <- subset(mydata, Player == player_name)$cluster
+player_cluster 
